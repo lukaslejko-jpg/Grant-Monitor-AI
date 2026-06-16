@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Bell, Bot, Building2, FileClock, History, LayoutDashboard, Link2, Play, Search, Settings, ShieldCheck, Users } from "lucide-react";
 
 const sources = [
@@ -66,8 +66,8 @@ export default function Home() {
   </main>;
 }
 
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) { return <div className={`rounded-lg border bg-white shadow-sm ${className}`}>{children}</div>; }
-function Badge({ children, tone = "green" }: { children: React.ReactNode; tone?: "green" | "blue" | "amber" | "red" }) { const c = { green: "bg-green-50 text-green-800", blue: "bg-blue-50 text-blue-800", amber: "bg-amber-50 text-amber-800", red: "bg-red-50 text-red-800" }[tone]; return <span className={`inline-flex min-h-7 items-center rounded-md px-2 text-xs font-bold ${c}`}>{children}</span>; }
+function Card({ children, className = "" }: { children: ReactNode; className?: string }) { return <div className={`rounded-lg border bg-white shadow-sm ${className}`}>{children}</div>; }
+function Badge({ children, tone = "green" }: { children: ReactNode; tone?: "green" | "blue" | "amber" | "red" }) { const c = { green: "bg-green-50 text-green-800", blue: "bg-blue-50 text-blue-800", amber: "bg-amber-50 text-amber-800", red: "bg-red-50 text-red-800" }[tone]; return <span className={`inline-flex min-h-7 items-center rounded-md px-2 text-xs font-bold ${c}`}>{children}</span>; }
 function LinkedGrant({ grant, setActive }: { grant: typeof grants[number]; setActive: (id: string) => void }) { return <Card className="mb-5 border-[#b8d8c8] bg-[#f7fbf9] p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase text-[#2f7a58]">Prepojený záznam výzvy</p><h3 className="m-0 text-base font-semibold">{grant.title}</h3><p className="m-0 text-sm text-slate-600">{grant.id} · {grant.issuer} · uzávierka {grant.deadline}</p></div><div className="flex flex-wrap gap-2">{[["grants","Detail"],["history","Zmeny"],["ai","AI"],["matching","Zhody"],["notifications","Notifikácie"]].map(([id,label]) => <button key={id} onClick={() => setActive(id)} className="min-h-9 rounded-md border bg-white px-3 text-sm font-semibold">{label}</button>)}</div></div></Card>; }
 function Dashboard() { return <div className="grid gap-4 xl:grid-cols-4">{[["Sledované zdroje","34","31 aktívnych + discovery"],["Nové výzvy","24","za 7 dní"],["Zmenené výzvy","17","termíny a sumy"],["Nefunkčné zdroje","3","vyžadujú kontrolu"]].map(([a,b,c]) => <Card key={a} className="p-5"><p className="text-sm text-slate-500">{a}</p><p className="my-2 text-4xl font-bold">{b}</p><Badge tone="blue">{c}</Badge></Card>)}</div>; }
 function Sources() { return <div className="space-y-5"><Card className="p-5"><h3>Discovery monitoring nových výziev</h3><p className="text-slate-600">Aplikácia neustále monitoruje hlavné portály, nové podstránky a PDF dokumenty. Nové URL prejdú SSRF validáciou, robots.txt kontrolou a čakárňou na potvrdenie.</p></Card><Card className="overflow-auto p-5"><h3>Sledované zdroje</h3><table className="mt-4 w-full text-sm"><thead><tr className="text-left text-xs uppercase text-slate-500"><th>Názov</th><th>Organizácia</th><th>Kategória</th><th>Interval</th><th>Typ</th><th>Stav</th></tr></thead><tbody>{sources.map(([name, org, url, category, interval, type]) => <tr key={String(url)} className="border-t"><td className="py-3"><b>{name}</b><div className="text-xs text-slate-500">{url}</div></td><td>{org}</td><td>{category}</td><td>{interval}</td><td>{type}</td><td><Badge>Aktívny</Badge></td></tr>)}</tbody></table></Card></div>; }
