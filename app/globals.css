@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #18365f;
+  --green: #2f7a58;
+  --line: #dfe5ec;
+  --soft: #f5f7fa;
+  --text: #132033;
+  --muted: #667489;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: var(--text); }
+button, input { font: inherit; }
+.touch { min-height: 44px; }
