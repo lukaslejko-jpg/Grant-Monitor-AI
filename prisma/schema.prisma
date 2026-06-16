@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole { ADMIN WORKER CLIENT }
+enum GrantStatus { NEW OPEN CHANGED EXTENDED CANCELLED CLOSED ARCHIVED }
+enum CheckType { STATIC_HTML DYNAMIC_PLAYWRIGHT DOCUMENT RSS API }
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      UserRole @default(WORKER)
+  clientId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Source {
+  id            String   @id @default(cuid())
+  name          String
+  organization  String
+  url           String
+  category      String
+  checkInterval Int
+  checkType     CheckType
+  active        Boolean  @default(true)
+  lastCheckedAt DateTime?
+  lastChangedAt DateTime?
+  grantCalls    GrantCall[]
+  snapshots     ContentSnapshot[]
+  checkRuns     CheckRun[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model GrantCall {
+  id                  String      @id @default(cuid())
+  title               String
+  callNumber          String?
+  issuer              String
+  program             String?
+  status              GrantStatus @default(NEW)
+  announcedAt         DateTime?
+  deadlineAt          DateTime?
+  allocation          Decimal?    @db.Decimal(14, 2)
+  minSupport          Decimal?    @db.Decimal(14, 2)
+  maxSupport          Decimal?    @db.Decimal(14, 2)
+  cofinancingRate     Decimal?    @db.Decimal(5, 2)
+  eligibleApplicants  String[]
+  eligibleRegions     String[]
+  eligibleActivities  String[]
+  eligibleExpenses    String[]
+  requiredAttachments String[]
+  aiSummary           String?
+  sourceUrl           String
+  sourceId            String?
+  source              Source?     @relation(fields: [sourceId], references: [id])
+  matches             ClientGrantMatch[]
+  changeItems         ChangeItem[]
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+}
+
+model ContentSnapshot {
+  id          String   @id @default(cuid())
+  sourceId    String
+  source      Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  url         String
+  contentHash String
+  rawText     String
+  version     Int
+  capturedAt  DateTime @default(now())
+}
+
+model ChangeItem {
+  id          String     @id @default(cuid())
+  grantCallId String?
+  grantCall   GrantCall? @relation(fields: [grantCallId], references: [id])
+  field       String
+  oldValue    String?
+  newValue    String?
+  importance  Int        @default(1)
+  createdAt   DateTime   @default(now())
+}
+
+model Client {
+  id            String   @id @default(cuid())
+  companyName   String
+  ico           String   @unique
+  legalForm     String
+  region        String
+  skNace        String
+  employeeCount Int
+  companySize   String
+  financialData Json
+  deMinimisAid  Decimal? @db.Decimal(14, 2)
+  interestAreas String[]
+  matches       ClientGrantMatch[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ClientGrantMatch {
+  id                  String    @id @default(cuid())
+  clientId            String
+  client              Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  grantCallId         String
+  grantCall           GrantCall @relation(fields: [grantCallId], references: [id], onDelete: Cascade)
+  matchPercent        Int
+  fulfilledConditions String[]
+  failedConditions    String[]
+  needsVerification   String[]
+  manuallyConfirmed   Boolean   @default(false)
+  confirmedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  @@unique([clientId, grantCallId])
+}
+
+model CheckRun {
+  id         String   @id @default(cuid())
+  sourceId   String
+  source     Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  status     String
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  message    String?
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+}
