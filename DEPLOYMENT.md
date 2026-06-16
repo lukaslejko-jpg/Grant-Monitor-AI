@@ -22,6 +22,16 @@ NEXTAUTH_SECRET=nahodne-dlhe-heslo
 NEXTAUTH_URL=https://tvoja-domena.vercel.app
 ```
 
+## Cron na Vercel Hobby
+
+Vercel Hobby povoľuje iba denný cron. Preto je `vercel.json` nastavený na:
+
+```text
+0 6 * * *
+```
+
+To znamená jeden automatický beh denne o 06:00 UTC. Častejšie monitorovanie grantových portálov rieš cez externý worker alebo Vercel Pro.
+
 ## Databáza
 
 Použi Vercel Postgres, Neon alebo Supabase PostgreSQL. Po pripojení spusti migrácie cez Prisma.
